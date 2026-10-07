@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script should be located inside the project directory (e.g., no-trace-message/)
+# This script should be located inside the project directory (e.g., repo-project/)
 
 # Get the absolute path of the directory containing this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
