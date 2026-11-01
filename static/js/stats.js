@@ -9,7 +9,7 @@
     'use strict';
 
     const GOOGLE_MEASUREMENT_ID = 'G-F66EZSG9P8'; // e.g. G-XXXXXXXXXX
-    const BAIDU_SITE_ID = 'b5e63b45bb5a8a07471321ba6fe54d1f';         // e.g. 0123456789abcdef
+    // const BAIDU_SITE_ID = '';         // e.g. 0123456789abcdef
 
     // Topic pages are rendered by topic.html, so report the article path
     // instead of grouping every article under /topic.
@@ -40,16 +40,16 @@
         document.head.appendChild(googleScript);
     }
 
-    if (BAIDU_SITE_ID) {
-        window._hmt = window._hmt || [];
-        // Disable Baidu's automatic URL page view so the normalized topic path
-        // below is the only page view recorded.
-        window._hmt.push(['_setAutoPageview', false]);
-        window._hmt.push(['_trackPageview', path]);
+    // if (BAIDU_SITE_ID) {
+    //     window._hmt = window._hmt || [];
+    //     // Disable Baidu's automatic URL page view so the normalized topic path
+    //     // below is the only page view recorded.
+    //     window._hmt.push(['_setAutoPageview', false]);
+    //     window._hmt.push(['_trackPageview', path]);
 
-        const baiduScript = document.createElement('script');
-        baiduScript.async = true;
-        baiduScript.src = 'https://hm.baidu.com/hm.js?' + encodeURIComponent(BAIDU_SITE_ID);
-        document.head.appendChild(baiduScript);
-    }
+    //     const baiduScript = document.createElement('script');
+    //     baiduScript.async = true;
+    //     baiduScript.src = 'https://hm.baidu.com/hm.js?' + encodeURIComponent(BAIDU_SITE_ID);
+    //     document.head.appendChild(baiduScript);
+    // }
 }());
