@@ -11,15 +11,6 @@ const M2 = new Matrix([
   [1, 1]
 ]);
 
-// const M_inv_T = inverse(M).transpose();
-
-// const M_T_inv = inverse(M.transpose());
-
-const matrices = [
-  M1.to2DArray(),
-  M2.to2DArray()
-];
-
 // ==================================================
 // Transformation Chain
 // ==================================================
@@ -46,54 +37,19 @@ const matrices = [
 //
 // ==================================================
 
-// const matrices = [
-//   [
-//     [3, 1],
-//     [1, 1],
-//   ],
+// ==================================================
+// State 1: Original matrix list
+// ==================================================
+//
+// This is the list configured by the user. It never
+// stores transformed results; every frame of the
+// animation is computed from the original points and
+// this list.
+//
 
-//   [
-//     [1, -1],
-//     [-1, 3],
-//   ],
-// ];
-
-const matrices_sample = [
-  // =================================================
-  // 1. Rotate 45°
-  // =================================================
-
-  [
-    [Math.cos(Math.PI / 4), -Math.sin(Math.PI / 4)],
-    [Math.sin(Math.PI / 4), Math.cos(Math.PI / 4)],
-  ],
-
-  // =================================================
-  // 2. Stretch X by 2
-  // =================================================
-
-  [
-    [2, 0],
-    [0, 1],
-  ],
-
-  // =================================================
-  // 3. Shear X
-  // =================================================
-
-  [
-    [1, 0.75],
-    [0, 1],
-  ],
-
-  // =================================================
-  // 4. Rotate another 30°
-  // =================================================
-
-  [
-    [Math.cos(Math.PI / 6), -Math.sin(Math.PI / 6)],
-    [Math.sin(Math.PI / 6), Math.cos(Math.PI / 6)],
-  ],
+const matrices = [
+  M1.to2DArray(),
+  M2.to2DArray()
 ];
 
 // ==================================================
@@ -263,8 +219,13 @@ scene.add(e1);
 scene.add(e2);
 
 // ==================================================
-// Basis vector state
+// State 3: Visualization state
 // ==================================================
+//
+// These values describe what is currently drawn on
+// screen. They are only updated when an animation is
+// committed or when the visualization is reset.
+//
 
 let currentE1 = new THREE.Vector2(1, 0);
 
@@ -342,6 +303,7 @@ matrixDisplay.style.color = "#222";
 matrixDisplay.style.background = "rgba(255, 255, 255, 0.85)";
 matrixDisplay.style.padding = "0.75rem 1rem";
 matrixDisplay.style.borderRadius = "0.375rem";
+matrixDisplay.style.pointerEvents = "none";
 document.body.appendChild(matrixDisplay);
 
 function updateLabelPositions(e1Vector, e2Vector) {
@@ -375,30 +337,6 @@ function updateLabelPositions(e1Vector, e2Vector) {
 }
 
 // ==================================================
-// Matrix formatting
-// ==================================================
-
-function formatMatrix(A) {
-  function n(value) {
-    const rounded = Number(value.toFixed(2));
-
-    return rounded;
-  }
-
-  return (
-    "A = [ " +
-    n(A[0][0]) +
-    "  " +
-    n(A[0][1]) +
-    " ; " +
-    n(A[1][0]) +
-    "  " +
-    n(A[1][1]) +
-    " ]"
-  );
-}
-
-// ==================================================
 // Apply matrix to vector
 // ==================================================
 
@@ -411,22 +349,59 @@ function applyMatrix(matrix, vector) {
 }
 
 // ==================================================
-// Prepare animation for a matrix
+// Compute the state after a number of steps
+// ==================================================
+//
+// The state is always computed from the original
+// points and the current matrix list. This avoids
+// accidentally accumulating transformations.
+//
+
+function computeStateAtStep(stepCount) {
+  const points = dots.map((dot) => {
+    let point = dot.userData.original.clone();
+
+    for (let i = 0; i < stepCount; i++) {
+      point = applyMatrix(matrices[i], point);
+    }
+
+    return point;
+  });
+
+  let basisE1 = new THREE.Vector2(1, 0);
+
+  let basisE2 = new THREE.Vector2(0, 1);
+
+  for (let i = 0; i < stepCount; i++) {
+    basisE1 = applyMatrix(matrices[i], basisE1);
+
+    basisE2 = applyMatrix(matrices[i], basisE2);
+  }
+
+  return {
+    points,
+    e1: basisE1,
+    e2: basisE2,
+  };
+}
+
+// ==================================================
+// Prepare animation for a target step
 // ==================================================
 
-function prepareStep(matrix) {
+function prepareStep(targetStepIndex) {
+  const targetState = computeStateAtStep(targetStepIndex);
+
   // ----------------------------------------------
   // Points
   // ----------------------------------------------
 
-  for (const dot of dots) {
-    const start = dot.userData.current.clone();
+  for (let i = 0; i < dots.length; i++) {
+    const dot = dots[i];
 
-    const target = applyMatrix(matrix, start);
+    dot.userData.animationStart = dot.userData.current.clone();
 
-    dot.userData.animationStart = start;
-
-    dot.userData.animationTarget = target;
+    dot.userData.animationTarget = targetState.points[i].clone();
   }
 
   // ----------------------------------------------
@@ -435,7 +410,7 @@ function prepareStep(matrix) {
 
   animationE1Start = currentE1.clone();
 
-  animationE1Target = applyMatrix(matrix, currentE1);
+  animationE1Target = targetState.e1.clone();
 
   // ----------------------------------------------
   // Basis e2
@@ -443,7 +418,7 @@ function prepareStep(matrix) {
 
   animationE2Start = currentE2.clone();
 
-  animationE2Target = applyMatrix(matrix, currentE2);
+  animationE2Target = targetState.e2.clone();
 }
 
 // ==================================================
@@ -498,13 +473,27 @@ function updateArrow(arrow, vector) {
 // Matrix label texture
 // ==================================================
 
-function setMatrixLabel(matrix) {
+function setMatrixLabel(index) {
+  if (index === null || index === undefined || !matrices[index]) {
+    matrixDisplay.innerHTML = `
+      <span style="
+        font-size: 1rem;
+        font-weight: normal;
+        color: #666;
+      ">No transformations</span>
+    `;
+
+    return;
+  }
+
+  const matrix = matrices[index];
+
   function n(value) {
     return Number(value.toFixed(2));
   }
 
   matrixDisplay.innerHTML = `
-    <span>A =</span>
+    <span>A<sub>${index + 1}</sub> =</span>
 
     <span style="
       display: inline-flex;
@@ -541,6 +530,40 @@ function setMatrixLabel(matrix) {
   `;
 }
 
+function refreshMatrixLabel() {
+  if (matrices.length === 0) {
+    setMatrixLabel(null);
+
+    return;
+  }
+
+  const index = Math.min(currentStep, matrices.length - 1);
+
+  setMatrixLabel(index);
+}
+
+// ==================================================
+// Matrix editing helpers
+// ==================================================
+
+function cleanNumber(value) {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  const rounded = Number(value.toFixed(10));
+
+  return Math.abs(rounded) < 1e-10 ? 0 : rounded;
+}
+
+function formatInputValue(value) {
+  if (!Number.isFinite(value)) {
+    return "0";
+  }
+
+  return String(Number(value.toFixed(6)));
+}
+
 // ==================================================
 // Animation settings
 // ==================================================
@@ -552,19 +575,14 @@ const TRANSFORM_TIME = 2500;
 const PAUSE_AFTER = 500;
 
 // ==================================================
-// Animation state
+// State 2: Transformation progress
 // ==================================================
 //
-// currentStep means:
+// currentStep is the number of completed matrices.
 //
-// 0 = first matrix is next
-// 1 = second matrix is next
-// 2 = third matrix is next
-//
-// IMPORTANT:
-// We do NOT increment this automatically when an
-// animation finishes. That makes Play / Next behave
-// predictably.
+// 0 = original state, first matrix is next
+// 1 = one matrix completed, second matrix is next
+// 2 = two matrices completed, etc.
 //
 
 let currentStep = 0;
@@ -575,46 +593,81 @@ let playing = false;
 
 let playToEnd = false;
 
+let stepDirection = 0;
+
+let targetStep = 0;
+
 // ==================================================
-// Play current step
+// Play a transition
 // ==================================================
 
-function playCurrentStep() {
-  if (currentStep < 0 || currentStep >= matrices.length) {
+function startTransition(toStep) {
+  if (toStep < 0 || toStep > matrices.length) {
     return;
   }
 
-  const matrix = matrices[currentStep];
+  if (toStep === currentStep) {
+    return;
+  }
 
-  prepareStep(matrix);
+  stepDirection = toStep > currentStep ? 1 : -1;
 
-  setMatrixLabel(matrix);
+  targetStep = toStep;
+
+  prepareStep(toStep);
+
+  // For a forward step, show the matrix being applied.
+  // For a backward step, show the matrix being undone.
+
+  const activeIndex = stepDirection > 0 ? toStep - 1 : toStep;
+
+  setMatrixLabel(activeIndex);
 
   animationStart = performance.now();
 
   playing = true;
+
+  updateStepLabel();
 }
 
 // ==================================================
-// Finish current step
+// Finish current step immediately
 // ==================================================
 
 function finishCurrentStep() {
+  if (!playing) {
+    return;
+  }
+
   commitStep();
+
+  currentStep = targetStep;
 
   playing = false;
 
   animationStart = null;
 
-  currentStep++;
+  stepDirection = 0;
+
+  refreshMatrixLabel();
+
+  updateStepLabel();
 }
 
 // ==================================================
-// Replay
+// Reset visualization
 // ==================================================
 
 function reset() {
   playToEnd = false;
+
+  playing = false;
+
+  animationStart = null;
+
+  stepDirection = 0;
+
+  targetStep = 0;
 
   // ----------------------------------------------
   // Reset points
@@ -624,6 +677,10 @@ function reset() {
     const original = dot.userData.original;
 
     dot.userData.current = original.clone();
+
+    dot.userData.animationStart = original.clone();
+
+    dot.userData.animationTarget = original.clone();
 
     dot.position.set(original.x, original.y, 0);
   }
@@ -635,6 +692,14 @@ function reset() {
   currentE1 = new THREE.Vector2(1, 0);
 
   currentE2 = new THREE.Vector2(0, 1);
+
+  animationE1Start = currentE1.clone();
+
+  animationE1Target = currentE1.clone();
+
+  animationE2Start = currentE2.clone();
+
+  animationE2Target = currentE2.clone();
 
   updateArrow(e1, currentE1);
 
@@ -652,35 +717,36 @@ function reset() {
 
   currentStep = 0;
 
-  playing = false;
+  refreshMatrixLabel();
 
-  animationStart = null;
-
-  setMatrixLabel(matrices[0]);
+  updateStepLabel();
 }
 
 // ==================================================
-// Play button
+// Matrix chain changed
+// ==================================================
+//
+// Any edit, reorder, add, delete, transpose or
+// inverse resets the visualization. This is the
+// "automatic reset" required by the editor.
+//
+
+function handleChainChange({ rebuildEditor = true } = {}) {
+  clearMessage();
+
+  if (rebuildEditor) {
+    renderMatrixEditor();
+  }
+
+  reset();
+}
+
+// ==================================================
+// Play / Next / Previous / Reset actions
 // ==================================================
 
-const playButton = document.createElement("button");
-
-playButton.textContent = "▶";
-
-playButton.style.padding = "0.5rem 1rem";
-
-playButton.style.fontSize = "1rem";
-
-playButton.style.background = "#ffffff";
-
-playButton.style.border = "1px solid #999";
-
-playButton.style.borderRadius = "6px";
-
-playButton.style.cursor = "pointer";
-
-playButton.addEventListener("click", () => {
-  if (playing) {
+function playAll() {
+  if (playing || matrices.length === 0) {
     return;
   }
 
@@ -690,63 +756,80 @@ playButton.addEventListener("click", () => {
 
   playToEnd = true;
 
-  playCurrentStep();
-});
+  startTransition(currentStep + 1);
+}
 
-// ==================================================
-// Next button
-// ==================================================
+function nextStep() {
+  playToEnd = false;
 
-const nextButton = document.createElement("button");
-
-nextButton.textContent = "⏭";
-
-nextButton.style.padding = "0.5rem 1rem";
-
-nextButton.style.fontSize = "1rem";
-
-nextButton.style.background = "#ffffff";
-
-nextButton.style.border = "1px solid #999";
-
-nextButton.style.borderRadius = "6px";
-
-nextButton.style.cursor = "pointer";
-
-nextButton.addEventListener("click", () => {
-  // If currently animating, finish this
-  // operation first.
   if (playing) {
     finishCurrentStep();
   }
 
-  // Don't go beyond the chain.
   if (currentStep >= matrices.length) {
     return;
   }
 
-  playCurrentStep();
-});
+  startTransition(currentStep + 1);
+}
+
+function previousStep() {
+  playToEnd = false;
+
+  if (playing) {
+    finishCurrentStep();
+  }
+
+  if (currentStep <= 0) {
+    return;
+  }
+
+  startTransition(currentStep - 1);
+}
 
 // ==================================================
-// Replay button
+// Controls
 // ==================================================
 
-const resetButton = document.createElement("button");
+function styleControlButton(button) {
+  button.type = "button";
 
-resetButton.textContent = "↻";
+  button.style.padding = "0.5rem 1rem";
 
-resetButton.style.padding = "0.5rem 1rem";
+  button.style.fontSize = "1rem";
 
-resetButton.style.fontSize = "1rem";
+  button.style.background = "#ffffff";
 
-resetButton.style.background = "#ffffff";
+  button.style.border = "1px solid #999";
 
-resetButton.style.border = "1px solid #999";
+  button.style.borderRadius = "6px";
 
-resetButton.style.borderRadius = "6px";
+  button.style.cursor = "pointer";
+}
 
-resetButton.style.cursor = "pointer";
+function makeEditorButton(text, title) {
+  const button = document.createElement("button");
+
+  button.type = "button";
+
+  button.textContent = text;
+
+  button.title = title;
+
+  button.style.padding = "0.25rem 0.5rem";
+
+  button.style.fontSize = "0.75rem";
+
+  button.style.background = "#ffffff";
+
+  button.style.border = "1px solid #aaa";
+
+  button.style.borderRadius = "4px";
+
+  button.style.cursor = "pointer";
+
+  return button;
+}
 
 const controls = document.createElement("div");
 
@@ -756,24 +839,64 @@ controls.style.top = "1.25rem";
 controls.style.display = "flex";
 controls.style.flexDirection = "column";
 controls.style.alignItems = "flex-start";
-controls.style.gap = "1rem";
+controls.style.gap = "0.75rem";
 
 document.body.appendChild(controls);
 
 const buttonRow = document.createElement("div");
 
 buttonRow.style.display = "flex";
-buttonRow.style.gap = "2rem";
+buttonRow.style.gap = "1rem";
 
 controls.appendChild(buttonRow);
 
+const previousButton = document.createElement("button");
+
+previousButton.textContent = "⏮";
+
+previousButton.title = "Previous transformation";
+
+styleControlButton(previousButton);
+
+const nextButton = document.createElement("button");
+
+nextButton.textContent = "⏭";
+
+nextButton.title = "Next transformation";
+
+styleControlButton(nextButton);
+
+const playButton = document.createElement("button");
+
+playButton.textContent = "▶";
+
+playButton.title = "Play the whole chain";
+
+styleControlButton(playButton);
+
+const resetButton = document.createElement("button");
+
+resetButton.textContent = "↻";
+
+resetButton.title = "Reset to the original grid";
+
+styleControlButton(resetButton);
+
+buttonRow.appendChild(previousButton);
+
 buttonRow.appendChild(nextButton);
+
 buttonRow.appendChild(playButton);
+
 buttonRow.appendChild(resetButton);
 
-resetButton.addEventListener("click", () => {
-  reset();
-});
+previousButton.addEventListener("click", previousStep);
+
+nextButton.addEventListener("click", nextStep);
+
+playButton.addEventListener("click", playAll);
+
+resetButton.addEventListener("click", reset);
 
 // ==================================================
 // Step indicator
@@ -788,6 +911,408 @@ stepLabel.style.fontSize = "1rem";
 stepLabel.style.color = "#333";
 
 controls.appendChild(stepLabel);
+
+// ==================================================
+// Message area
+// ==================================================
+
+const messageDisplay = document.createElement("div");
+
+messageDisplay.style.display = "none";
+
+messageDisplay.style.fontFamily = "Arial, sans-serif";
+
+messageDisplay.style.fontSize = "0.8rem";
+
+messageDisplay.style.lineHeight = "1.35";
+
+messageDisplay.style.color = "#b00020";
+
+messageDisplay.style.background = "#fff3f3";
+
+messageDisplay.style.border = "1px solid #f0c0c0";
+
+messageDisplay.style.borderRadius = "4px";
+
+messageDisplay.style.padding = "0.45rem 0.55rem";
+
+messageDisplay.style.maxWidth = "19rem";
+
+controls.appendChild(messageDisplay);
+
+let messageTimer = null;
+
+function showMessage(text) {
+  messageDisplay.textContent = text;
+
+  messageDisplay.style.display = "block";
+
+  if (messageTimer !== null) {
+    clearTimeout(messageTimer);
+  }
+
+  messageTimer = setTimeout(() => {
+    messageDisplay.textContent = "";
+
+    messageDisplay.style.display = "none";
+
+    messageTimer = null;
+  }, 6000);
+}
+
+function clearMessage() {
+  if (messageTimer !== null) {
+    clearTimeout(messageTimer);
+
+    messageTimer = null;
+  }
+
+  messageDisplay.textContent = "";
+
+  messageDisplay.style.display = "none";
+}
+
+// ==================================================
+// Matrix editor
+// ==================================================
+
+const editor = document.createElement("div");
+
+editor.style.background = "rgba(255, 255, 255, 0.92)";
+
+editor.style.border = "1px solid #ccc";
+
+editor.style.borderRadius = "8px";
+
+editor.style.padding = "0.75rem";
+
+editor.style.width = "19rem";
+
+editor.style.boxSizing = "border-box";
+
+editor.style.maxHeight = "calc(100vh - 12rem)";
+
+editor.style.overflowY = "auto";
+
+editor.style.fontFamily = "Arial, sans-serif";
+
+editor.style.fontSize = "0.85rem";
+
+editor.style.color = "#222";
+
+editor.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.08)";
+
+controls.appendChild(editor);
+
+function renderMatrixEditor() {
+  editor.innerHTML = "";
+
+  // ----------------------------------------------
+  // Editor header
+  // ----------------------------------------------
+
+  const editorHeader = document.createElement("div");
+
+  editorHeader.style.display = "flex";
+
+  editorHeader.style.alignItems = "center";
+
+  editorHeader.style.gap = "0.5rem";
+
+  editorHeader.style.marginBottom = "0.5rem";
+
+  const editorTitle = document.createElement("div");
+
+  editorTitle.textContent = "Matrix chain";
+
+  editorTitle.style.fontWeight = "bold";
+
+  editorTitle.style.flex = "1";
+
+  const addButton = makeEditorButton("+ Add Matrix", "Add a new 2 × 2 matrix");
+
+  addButton.addEventListener("click", () => {
+    matrices.push([
+      [1, 0],
+      [0, 1],
+    ]);
+
+    handleChainChange();
+
+    editor.scrollTop = editor.scrollHeight;
+  });
+
+  editorHeader.appendChild(editorTitle);
+
+  editorHeader.appendChild(addButton);
+
+  editor.appendChild(editorHeader);
+
+  // ----------------------------------------------
+  // Empty state
+  // ----------------------------------------------
+
+  if (matrices.length === 0) {
+    const emptyMessage = document.createElement("div");
+
+    emptyMessage.textContent = "No matrices yet. Add one to begin.";
+
+    emptyMessage.style.color = "#666";
+
+    emptyMessage.style.fontStyle = "italic";
+
+    emptyMessage.style.padding = "0.25rem 0";
+
+    editor.appendChild(emptyMessage);
+
+    return;
+  }
+
+  // ----------------------------------------------
+  // Matrix cards
+  // ----------------------------------------------
+
+  for (let i = 0; i < matrices.length; i++) {
+    const matrix = matrices[i];
+
+    const card = document.createElement("div");
+
+    card.style.padding = i === 0 ? "0 0 0.65rem" : "0.65rem 0";
+
+    card.style.borderTop = i === 0 ? "none" : "1px solid #e4e4e4";
+
+    // --------------------------------------------
+    // Card header
+    // --------------------------------------------
+
+    const header = document.createElement("div");
+
+    header.style.display = "flex";
+
+    header.style.alignItems = "center";
+
+    header.style.gap = "0.3rem";
+
+    header.style.marginBottom = "0.45rem";
+
+    const title = document.createElement("div");
+
+    title.innerHTML = `
+      <strong>Matrix ${i + 1}</strong>
+
+      <span style="
+        color: #777;
+        font-weight: normal;
+        font-size: 0.75rem;
+      ">(step ${i + 1})</span>
+    `;
+
+    title.style.flex = "1";
+
+    const upButton = makeEditorButton("↑", "Move this matrix earlier");
+
+    upButton.disabled = i === 0;
+
+    upButton.addEventListener("click", () => {
+      if (i === 0) {
+        return;
+      }
+
+      [matrices[i - 1], matrices[i]] = [matrices[i], matrices[i - 1]];
+
+      handleChainChange();
+    });
+
+    const downButton = makeEditorButton("↓", "Move this matrix later");
+
+    downButton.disabled = i === matrices.length - 1;
+
+    downButton.addEventListener("click", () => {
+      if (i === matrices.length - 1) {
+        return;
+      }
+
+      [matrices[i], matrices[i + 1]] = [matrices[i + 1], matrices[i]];
+
+      handleChainChange();
+    });
+
+    const deleteButton = makeEditorButton("✕", "Delete this matrix");
+
+    deleteButton.style.color = "#b00020";
+
+    deleteButton.style.borderColor = "#d9a0a0";
+
+    deleteButton.addEventListener("click", () => {
+      matrices.splice(i, 1);
+
+      handleChainChange();
+    });
+
+    header.appendChild(title);
+
+    header.appendChild(upButton);
+
+    header.appendChild(downButton);
+
+    header.appendChild(deleteButton);
+
+    card.appendChild(header);
+
+    // --------------------------------------------
+    // Card body
+    // --------------------------------------------
+
+    const body = document.createElement("div");
+
+    body.style.display = "flex";
+
+    body.style.alignItems = "flex-start";
+
+    body.style.gap = "0.55rem";
+
+    const inputGrid = document.createElement("div");
+
+    inputGrid.style.display = "grid";
+
+    inputGrid.style.gridTemplateColumns = "repeat(2, 4rem)";
+
+    inputGrid.style.gap = "0.3rem";
+
+    for (let row = 0; row < 2; row++) {
+      for (let column = 0; column < 2; column++) {
+        const input = document.createElement("input");
+
+        input.type = "number";
+
+        input.step = "any";
+
+        input.value = formatInputValue(matrix[row][column]);
+
+        input.setAttribute(
+          "aria-label",
+          `Matrix ${i + 1}, row ${row + 1}, column ${column + 1}`,
+        );
+
+        input.style.width = "4rem";
+
+        input.style.boxSizing = "border-box";
+
+        input.style.padding = "0.3rem 0.25rem";
+
+        input.style.border = "1px solid #bbb";
+
+        input.style.borderRadius = "4px";
+
+        input.style.fontFamily = "Arial, sans-serif";
+
+        input.style.fontSize = "0.9rem";
+
+        input.style.textAlign = "center";
+
+        input.addEventListener("input", () => {
+          const value = parseFloat(input.value);
+
+          if (!Number.isFinite(value)) {
+            return;
+          }
+
+          matrix[row][column] = value;
+
+          handleChainChange({ rebuildEditor: false });
+        });
+
+        input.addEventListener("blur", () => {
+          input.value = formatInputValue(matrix[row][column]);
+        });
+
+        inputGrid.appendChild(input);
+      }
+    }
+
+    const operationColumn = document.createElement("div");
+
+    operationColumn.style.display = "flex";
+
+    operationColumn.style.flexDirection = "column";
+
+    operationColumn.style.gap = "0.3rem";
+
+    const transposeButton = makeEditorButton(
+      "Transpose",
+      "Replace this matrix with its transpose",
+    );
+
+    transposeButton.style.width = "5.5rem";
+
+    transposeButton.addEventListener("click", () => {
+      matrices[i] = [
+        [matrix[0][0], matrix[1][0]],
+        [matrix[0][1], matrix[1][1]],
+      ];
+
+      handleChainChange();
+    });
+
+    const inverseButton = makeEditorButton(
+      "Inverse",
+      "Replace this matrix with its inverse",
+    );
+
+    inverseButton.style.width = "5.5rem";
+
+    inverseButton.addEventListener("click", () => {
+      const determinant =
+        matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+
+      // ------------------------------------------
+      // Singular matrix: reject the operation
+      // ------------------------------------------
+
+      if (Math.abs(determinant) < 1e-12) {
+        showMessage(
+          `Matrix ${i + 1} is singular (determinant = 0), so it has no inverse. The matrix was left unchanged.`,
+        );
+
+        return;
+      }
+
+      matrices[i] = inverse(new Matrix(matrix))
+        .to2DArray()
+        .map((row) => row.map(cleanNumber));
+
+      handleChainChange();
+    });
+
+    operationColumn.appendChild(transposeButton);
+
+    operationColumn.appendChild(inverseButton);
+
+    body.appendChild(inputGrid);
+
+    body.appendChild(operationColumn);
+
+    card.appendChild(body);
+
+    editor.appendChild(card);
+  }
+}
+
+// ==================================================
+// Step label
+// ==================================================
+
+function updateStepLabel() {
+  if (matrices.length === 0) {
+    stepLabel.textContent = "No transformations";
+
+    return;
+  }
+
+  const displayedStep = playing ? targetStep : currentStep;
+
+  stepLabel.textContent = "Step " + displayedStep + " / " + matrices.length;
+}
 
 // ==================================================
 // Animation
@@ -853,19 +1378,16 @@ function animate(time) {
 
     updateLabelPositions(animationE1Target, animationE2Target);
 
-    // Keep the completed state,
-    // but DON'T advance currentStep.
-
     if (elapsed > PAUSE_BEFORE + TRANSFORM_TIME + PAUSE_AFTER) {
       // Commit this transformation.
       commitStep();
 
-      currentStep++;
+      currentStep = targetStep;
 
       if (playToEnd && currentStep < matrices.length) {
-        // Immediately prepare the next transformation.
-        // No intermediate "playing = false" frame.
-        playCurrentStep();
+        // Immediately prepare the next forward transformation.
+
+        startTransition(currentStep + 1);
 
         updateStepLabel();
 
@@ -876,18 +1398,23 @@ function animate(time) {
         // Do not continue into the interpolation
         // code below. Otherwise t = 1 from the old
         // animation gets applied to the new one.
+
         return;
       }
 
       // --------------------------------------------
-      // Chain finished
+      // Chain finished (or a single step finished)
       // --------------------------------------------
 
       playing = false;
 
       animationStart = null;
 
+      stepDirection = 0;
+
       playToEnd = false;
+
+      refreshMatrixLabel();
     }
   }
 
@@ -937,22 +1464,6 @@ function animate(time) {
 }
 
 // ==================================================
-// Step label
-// ==================================================
-
-function updateStepLabel() {
-  if (matrices.length === 0) {
-    stepLabel.textContent = "No transformations";
-
-    return;
-  }
-
-  const displayedStep = Math.min(currentStep + 1, matrices.length);
-
-  stepLabel.textContent = "Step " + displayedStep + " / " + matrices.length;
-}
-
-// ==================================================
 // Resize
 // ==================================================
 
@@ -978,13 +1489,13 @@ window.addEventListener("resize", () => {
 // Initial state
 // ==================================================
 
-setMatrixLabel(matrices[0]);
+renderMatrixEditor();
 
 updateArrow(e1, currentE1);
 
 updateArrow(e2, currentE2);
 
-updateStepLabel();
+reset();
 
 // ==================================================
 // Start
