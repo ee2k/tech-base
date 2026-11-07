@@ -198,6 +198,67 @@ for (let x = -3; x <= 3.001; x += 0.5) {
 }
 
 // ==================================================
+// Unit circle
+// ==================================================
+//
+// The unit circle is transformed by the same matrix
+// chain as the dots. A linear transformation maps it
+// to an ellipse, which makes rotation and stretching
+// easier to see than the point lattice alone.
+//
+
+const UNIT_CIRCLE_SEGMENTS = 180;
+
+const unitCircleOriginal = [];
+
+for (let i = 0; i < UNIT_CIRCLE_SEGMENTS; i++) {
+  const angle = (i / UNIT_CIRCLE_SEGMENTS) * Math.PI * 2;
+
+  unitCircleOriginal.push(
+    new THREE.Vector2(Math.cos(angle), Math.sin(angle)),
+  );
+}
+
+const unitCircle = new THREE.LineLoop(
+  new THREE.BufferGeometry().setFromPoints(
+    unitCircleOriginal.map((point) => new THREE.Vector3(point.x, point.y, 0)),
+  ),
+  new THREE.LineBasicMaterial({
+    color: 0x1565c0,
+    transparent: true,
+    opacity: 0.8,
+  }),
+);
+
+unitCircle.position.z = 0.01;
+
+unitCircle.renderOrder = 1;
+
+unitCircle.frustumCulled = false;
+
+scene.add(unitCircle);
+
+let unitCircleCurrent = unitCircleOriginal.map((point) => point.clone());
+
+let unitCircleAnimationStart = unitCircleOriginal.map((point) =>
+  point.clone(),
+);
+
+let unitCircleAnimationTarget = unitCircleOriginal.map((point) =>
+  point.clone(),
+);
+
+function updateUnitCircleGeometry(points) {
+  const positions = unitCircle.geometry.attributes.position;
+
+  for (let i = 0; i < points.length; i++) {
+    positions.setXY(i, points[i].x, points[i].y);
+  }
+
+  positions.needsUpdate = true;
+}
+
+// ==================================================
 // Basis vectors
 // ==================================================
 
@@ -378,8 +439,19 @@ function computeStateAtStep(stepCount) {
     basisE2 = applyMatrix(matrices[i], basisE2);
   }
 
+  const circlePoints = unitCircleOriginal.map((originalPoint) => {
+    let point = originalPoint.clone();
+
+    for (let i = 0; i < stepCount; i++) {
+      point = applyMatrix(matrices[i], point);
+    }
+
+    return point;
+  });
+
   return {
     points,
+    circlePoints,
     e1: basisE1,
     e2: basisE2,
   };
@@ -419,6 +491,16 @@ function prepareStep(targetStepIndex) {
   animationE2Start = currentE2.clone();
 
   animationE2Target = targetState.e2.clone();
+
+  // ----------------------------------------------
+  // Unit circle
+  // ----------------------------------------------
+
+  unitCircleAnimationStart = unitCircleCurrent.map((point) => point.clone());
+
+  unitCircleAnimationTarget = targetState.circlePoints.map((point) =>
+    point.clone(),
+  );
 }
 
 // ==================================================
@@ -435,6 +517,10 @@ function commitStep() {
   currentE1 = animationE1Target.clone();
 
   currentE2 = animationE2Target.clone();
+
+  unitCircleCurrent = unitCircleAnimationTarget.map((point) => point.clone());
+
+  updateUnitCircleGeometry(unitCircleCurrent);
 
   updateArrow(e1, currentE1);
 
@@ -701,6 +787,22 @@ function reset() {
 
   animationE2Target = currentE2.clone();
 
+  // ----------------------------------------------
+  // Reset unit circle
+  // ----------------------------------------------
+
+  unitCircleCurrent = unitCircleOriginal.map((point) => point.clone());
+
+  unitCircleAnimationStart = unitCircleOriginal.map((point) =>
+    point.clone(),
+  );
+
+  unitCircleAnimationTarget = unitCircleOriginal.map((point) =>
+    point.clone(),
+  );
+
+  updateUnitCircleGeometry(unitCircleCurrent);
+
   updateArrow(e1, currentE1);
 
   updateArrow(e2, currentE2);
@@ -911,6 +1013,54 @@ stepLabel.style.fontSize = "1rem";
 stepLabel.style.color = "#333";
 
 controls.appendChild(stepLabel);
+
+// ==================================================
+// Unit circle toggle
+// ==================================================
+
+const unitCircleToggle = document.createElement("label");
+
+unitCircleToggle.style.display = "flex";
+
+unitCircleToggle.style.alignItems = "center";
+
+unitCircleToggle.style.gap = "0.4rem";
+
+unitCircleToggle.style.fontFamily = "Arial, sans-serif";
+
+unitCircleToggle.style.fontSize = "0.9rem";
+
+unitCircleToggle.style.color = "#333";
+
+unitCircleToggle.style.cursor = "pointer";
+
+unitCircleToggle.style.userSelect = "none";
+
+const unitCircleCheckbox = document.createElement("input");
+
+unitCircleCheckbox.type = "checkbox";
+
+unitCircleCheckbox.checked = false;
+
+unitCircleCheckbox.style.margin = "0";
+
+unitCircleCheckbox.style.accentColor = "#1565c0";
+
+unitCircleCheckbox.style.cursor = "pointer";
+
+unitCircleCheckbox.addEventListener("change", () => {
+  unitCircle.visible = unitCircleCheckbox.checked;
+});
+
+unitCircleToggle.appendChild(unitCircleCheckbox);
+
+unitCircleToggle.appendChild(document.createTextNode("Show unit circle"));
+
+controls.appendChild(unitCircleToggle);
+
+// Sync the initial visibility with the checkbox state.
+
+unitCircle.visible = unitCircleCheckbox.checked;
 
 // ==================================================
 // Message area
@@ -1376,6 +1526,8 @@ function animate(time) {
 
     updateArrow(e2, animationE2Target);
 
+    updateUnitCircleGeometry(unitCircleAnimationTarget);
+
     updateLabelPositions(animationE1Target, animationE2Target);
 
     if (elapsed > PAUSE_BEFORE + TRANSFORM_TIME + PAUSE_AFTER) {
@@ -1456,6 +1608,22 @@ function animate(time) {
     updateArrow(e2, e2Current);
 
     updateLabelPositions(e1Current, e2Current);
+
+    // =================================================
+    // Interpolate unit circle
+    // =================================================
+
+    const circleCurrent = unitCircleAnimationStart.map((start, i) => {
+      const target = unitCircleAnimationTarget[i];
+
+      return new THREE.Vector2(
+        THREE.MathUtils.lerp(start.x, target.x, t),
+
+        THREE.MathUtils.lerp(start.y, target.y, t),
+      );
+    });
+
+    updateUnitCircleGeometry(circleCurrent);
   }
 
   updateStepLabel();
