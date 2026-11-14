@@ -350,13 +350,449 @@ scene.add(e2Label);
 updateLabelPositions(currentE1, currentE2);
 
 // ==================================================
-// Matrix label
+// Eigenvector and singular vector overlays
+// ==================================================
+//
+// These vectors describe the whole matrix chain. They
+// are drawn in the same plane as the grid and are only
+// shown when the matching checkbox is enabled.
+//
+
+const OVERLAY_VECTOR_LENGTH = 2;
+
+const VECTOR_EPSILON = 1e-9;
+
+const EIGENVECTOR_COLORS = ["#e65100", "#f9a825"];
+const RIGHT_SINGULAR_COLORS = ["#00838f", "#26a69a"];
+const LEFT_SINGULAR_COLORS = ["#6a1b9a", "#ab47bc"];
+
+let showEigenvectors = false;
+
+let showSingularVectors = false;
+
+// Display vectors for every step of the chain.
+// The moving arrows are carried from their
+// whole-chain vectors by applying each matrix in
+// turn, so they both rotate and scale.
+
+let eigenvectorSteps = null;
+
+let rightSingularSteps = null;
+
+let leftSingularReferences = null;
+
+let overlayProgress = 1;
+
+const eigenvectorArrows = [
+  createArrow(0xe65100, new THREE.Vector3(1, 0, 0)),
+  createArrow(0xf9a825, new THREE.Vector3(0, 1, 0)),
+];
+
+const rightSingularArrows = [
+  createArrow(0x00838f, new THREE.Vector3(1, 0, 0)),
+  createArrow(0x26a69a, new THREE.Vector3(0, 1, 0)),
+];
+
+const leftSingularArrows = [
+  createArrow(0x6a1b9a, new THREE.Vector3(1, 0, 0)),
+  createArrow(0xab47bc, new THREE.Vector3(0, 1, 0)),
+];
+
+for (const arrow of leftSingularArrows) {
+  // Reference directions are drawn faintly so they
+  // read as output-space guides rather than moving
+  // input vectors.
+
+  arrow.line.material.transparent = true;
+
+  arrow.line.material.opacity = 0.6;
+
+  arrow.cone.material.transparent = true;
+
+  arrow.cone.material.opacity = 0.6;
+}
+
+function createOverlayLabel(text, color) {
+  const label = createLabel(text, color, 4);
+
+  label.center.set(0.5, 0.5);
+
+  label.scale.set(2.5, 0.625, 1);
+
+  label.visible = false;
+
+  scene.add(label);
+
+  return label;
+}
+
+const eigenvectorLabels = [
+  createOverlayLabel("ev₁", EIGENVECTOR_COLORS[0]),
+  createOverlayLabel("ev₂", EIGENVECTOR_COLORS[1]),
+];
+
+const rightSingularLabels = [
+  createOverlayLabel("v₁", RIGHT_SINGULAR_COLORS[0]),
+  createOverlayLabel("v₂", RIGHT_SINGULAR_COLORS[1]),
+];
+
+const leftSingularLabels = [
+  createOverlayLabel("u₁", LEFT_SINGULAR_COLORS[0]),
+  createOverlayLabel("u₂", LEFT_SINGULAR_COLORS[1]),
+];
+
+for (const label of leftSingularLabels) {
+  label.material.opacity = 0.6;
+}
+
+for (const arrow of [
+  ...eigenvectorArrows,
+  ...rightSingularArrows,
+  ...leftSingularArrows,
+]) {
+  arrow.visible = false;
+
+  scene.add(arrow);
+}
+
+function hideOverlayGroup(arrows, labels) {
+  for (const arrow of arrows) {
+    arrow.visible = false;
+  }
+
+  for (const label of labels) {
+    label.visible = false;
+  }
+}
+
+function updateOverlayArrow(arrow, label, vector) {
+  const length = vector.length();
+
+  if (length < VECTOR_EPSILON) {
+    arrow.visible = false;
+
+    label.visible = false;
+
+    return;
+  }
+
+  const unit = vector.clone().divideScalar(length);
+
+  arrow.visible = true;
+
+  arrow.position.set(0, 0, 0.05);
+
+  arrow.setDirection(new THREE.Vector3(unit.x, unit.y, 0));
+
+  arrow.setLength(
+    length,
+
+    Math.min(0.22, length * 0.25),
+
+    Math.min(0.11, length * 0.15),
+  );
+
+  label.visible = true;
+
+  label.position.set(
+    vector.x + unit.x * 0.3,
+
+    vector.y + unit.y * 0.3,
+
+    0.05,
+  );
+}
+
+function computeEigenvectors(matrix) {
+  const a = matrix[0][0];
+  const b = matrix[0][1];
+  const c = matrix[1][0];
+  const d = matrix[1][1];
+
+  const trace = a + d;
+
+  const determinant = a * d - b * c;
+
+  const discriminant = trace * trace - 4 * determinant;
+
+  // ----------------------------------------------
+  // Complex eigenvalues: no real eigenvectors
+  // ----------------------------------------------
+
+  if (discriminant < -VECTOR_EPSILON) {
+    return null;
+  }
+
+  const root = Math.sqrt(Math.max(0, discriminant));
+
+  const lambda1 = (trace + root) / 2;
+
+  const lambda2 = (trace - root) / 2;
+
+  function eigenvectorFor(lambda) {
+    if (Math.abs(b) > VECTOR_EPSILON || Math.abs(c) > VECTOR_EPSILON) {
+      if (Math.abs(b) >= Math.abs(c)) {
+        return new THREE.Vector2(b, lambda - a).normalize();
+      }
+
+      return new THREE.Vector2(lambda - d, c).normalize();
+    }
+
+    if (Math.abs(lambda - a) <= Math.abs(lambda - d)) {
+      return new THREE.Vector2(1, 0);
+    }
+
+    return new THREE.Vector2(0, 1);
+  }
+
+  const eigenvectors = [eigenvectorFor(lambda1)];
+
+  if (Math.abs(lambda1 - lambda2) > VECTOR_EPSILON) {
+    eigenvectors.push(eigenvectorFor(lambda2));
+  } else if (
+    Math.abs(b) < VECTOR_EPSILON &&
+    Math.abs(c) < VECTOR_EPSILON
+  ) {
+    // A scalar matrix has every direction as an eigenvector.
+    eigenvectors.push(new THREE.Vector2(0, 1));
+  } else {
+    // Defective matrix: only one independent eigenvector.
+    eigenvectors.push(null);
+  }
+
+  return eigenvectors;
+}
+
+function computeSingularVectors(matrix) {
+  const a = matrix[0][0];
+  const b = matrix[0][1];
+  const c = matrix[1][0];
+  const d = matrix[1][1];
+
+  // ----------------------------------------------
+  // Eigen-decomposition of the symmetric matrix
+  // MᵀM gives the right singular vectors.
+  // ----------------------------------------------
+
+  const p00 = a * a + c * c;
+
+  const p01 = a * b + c * d;
+
+  const p11 = b * b + d * d;
+
+  const theta = 0.5 * Math.atan2(2 * p01, p00 - p11);
+
+  const cos = Math.cos(theta);
+  const sin = Math.sin(theta);
+
+  const mean = (p00 + p11) / 2;
+
+  const spread = Math.hypot((p00 - p11) / 2, p01);
+
+  const sigma1 = Math.sqrt(Math.max(0, mean + spread));
+
+  const sigma2 = Math.sqrt(Math.max(0, mean - spread));
+
+  const v1 = new THREE.Vector2(cos, sin);
+
+  const v2 = new THREE.Vector2(-sin, cos);
+
+  // ----------------------------------------------
+  // Left singular vectors: uᵢ = Mvᵢ / σᵢ
+  // ----------------------------------------------
+
+  let u1;
+
+  let u2;
+
+  if (sigma1 > VECTOR_EPSILON) {
+    u1 = applyMatrix(matrix, v1).multiplyScalar(1 / sigma1);
+  } else {
+    u1 = new THREE.Vector2(1, 0);
+  }
+
+  if (sigma2 > VECTOR_EPSILON) {
+    u2 = applyMatrix(matrix, v2).multiplyScalar(1 / sigma2);
+  } else {
+    u2 = new THREE.Vector2(-u1.y, u1.x);
+  }
+
+  return { u1, u2, v1, v2, sigma1, sigma2 };
+}
+
+function carryVector(matrix, vector) {
+  if (!vector) {
+    return null;
+  }
+
+  return applyMatrix(matrix, vector);
+}
+
+function prepareOverlayData() {
+  const product = computeChainProduct();
+
+  const eigenvectors = computeEigenvectors(product);
+
+  const singular = computeSingularVectors(product);
+
+  // ----------------------------------------------
+  // Whole-chain vectors at step 0
+  // ----------------------------------------------
+
+  eigenvectorSteps = eigenvectors
+    ? [
+        eigenvectors.map((vector) =>
+          vector ? vector.clone().multiplyScalar(OVERLAY_VECTOR_LENGTH) : null,
+        ),
+      ]
+    : null;
+
+  rightSingularSteps = [
+    [
+      singular.v1.clone().multiplyScalar(OVERLAY_VECTOR_LENGTH),
+
+      singular.v2.clone().multiplyScalar(OVERLAY_VECTOR_LENGTH),
+    ],
+  ];
+
+  // Left singular vectors are fixed reference
+  // directions in the output space. Their lengths
+  // reflect the final singular scaling.
+
+  leftSingularReferences = [
+    singular.u1
+      .clone()
+      .multiplyScalar(OVERLAY_VECTOR_LENGTH * singular.sigma1),
+
+    singular.u2
+      .clone()
+      .multiplyScalar(OVERLAY_VECTOR_LENGTH * singular.sigma2),
+  ];
+
+  // ----------------------------------------------
+  // Carry the moving vectors through the chain
+  // ----------------------------------------------
+
+  for (let i = 0; i < matrices.length; i++) {
+    if (eigenvectorSteps) {
+      eigenvectorSteps.push(
+        eigenvectorSteps[i].map((vector) => carryVector(matrices[i], vector)),
+      );
+    }
+
+    rightSingularSteps.push(
+      rightSingularSteps[i].map((vector) => carryVector(matrices[i], vector)),
+    );
+  }
+}
+
+function lerpVector(from, to, t) {
+  const fromX = from ? from.x : 0;
+
+  const fromY = from ? from.y : 0;
+
+  const toX = to ? to.x : 0;
+
+  const toY = to ? to.y : 0;
+
+  return new THREE.Vector2(
+    THREE.MathUtils.lerp(fromX, toX, t),
+
+    THREE.MathUtils.lerp(fromY, toY, t),
+  );
+}
+
+function overlayStepIndex(step) {
+  return Math.max(0, Math.min(step, matrices.length));
+}
+
+function updateEigenvectorOverlay(stepFrom, stepTo, t) {
+  if (!showEigenvectors || !eigenvectorSteps) {
+    hideOverlayGroup(eigenvectorArrows, eigenvectorLabels);
+
+    return;
+  }
+
+  const from = eigenvectorSteps[overlayStepIndex(stepFrom)];
+
+  const to = eigenvectorSteps[overlayStepIndex(stepTo)];
+
+  for (let i = 0; i < 2; i++) {
+    const vector = lerpVector(from[i], to[i], t);
+
+    updateOverlayArrow(eigenvectorArrows[i], eigenvectorLabels[i], vector);
+  }
+}
+
+function updateSingularVectorOverlay(stepFrom, stepTo, t) {
+  if (
+    !showSingularVectors ||
+    !rightSingularSteps ||
+    !leftSingularReferences
+  ) {
+    hideOverlayGroup(rightSingularArrows, rightSingularLabels);
+
+    hideOverlayGroup(leftSingularArrows, leftSingularLabels);
+
+    return;
+  }
+
+  const from = rightSingularSteps[overlayStepIndex(stepFrom)];
+
+  const to = rightSingularSteps[overlayStepIndex(stepTo)];
+
+  for (let i = 0; i < 2; i++) {
+    const vector = lerpVector(from[i], to[i], t);
+
+    updateOverlayArrow(rightSingularArrows[i], rightSingularLabels[i], vector);
+
+    // Left singular vectors are fixed reference
+    // directions in the output space.
+
+    updateOverlayArrow(
+      leftSingularArrows[i],
+      leftSingularLabels[i],
+      leftSingularReferences[i].clone(),
+    );
+  }
+}
+
+function updateOverlayVectors(t) {
+  const stepFrom = currentStep;
+
+  const stepTo = playing ? targetStep : currentStep;
+
+  overlayProgress = playing ? t : 1;
+
+  updateEigenvectorOverlay(stepFrom, stepTo, overlayProgress);
+
+  updateSingularVectorOverlay(stepFrom, stepTo, overlayProgress);
+}
+
+function refreshOverlayVectors() {
+  prepareOverlayData();
+
+  updateOverlayVectors(playing ? overlayProgress : 1);
+}
+
+// ==================================================
+// Matrix labels
 // ==================================================
 
+const infoPanel = document.createElement("div");
+
+infoPanel.style.position = "absolute";
+infoPanel.style.right = "1.25rem";
+infoPanel.style.top = "1.25rem";
+infoPanel.style.display = "flex";
+infoPanel.style.flexDirection = "column";
+infoPanel.style.alignItems = "flex-end";
+infoPanel.style.gap = "0.75rem";
+infoPanel.style.pointerEvents = "none";
+
+document.body.appendChild(infoPanel);
+
 const matrixDisplay = document.createElement("div");
-matrixDisplay.style.position = "absolute";
-matrixDisplay.style.right = "1.25rem";
-matrixDisplay.style.top = "1.25rem";
 matrixDisplay.style.fontFamily = "Arial, sans-serif";
 matrixDisplay.style.fontSize = "1.5rem";
 matrixDisplay.style.fontWeight = "bold";
@@ -365,7 +801,18 @@ matrixDisplay.style.background = "rgba(255, 255, 255, 0.85)";
 matrixDisplay.style.padding = "0.75rem 1rem";
 matrixDisplay.style.borderRadius = "0.375rem";
 matrixDisplay.style.pointerEvents = "none";
-document.body.appendChild(matrixDisplay);
+infoPanel.appendChild(matrixDisplay);
+
+const productDisplay = document.createElement("div");
+productDisplay.style.fontFamily = "Arial, sans-serif";
+productDisplay.style.fontSize = "1.5rem";
+productDisplay.style.fontWeight = "bold";
+productDisplay.style.color = "#222";
+productDisplay.style.background = "rgba(255, 255, 255, 0.85)";
+productDisplay.style.padding = "0.75rem 1rem";
+productDisplay.style.borderRadius = "0.375rem";
+productDisplay.style.pointerEvents = "none";
+infoPanel.appendChild(productDisplay);
 
 function updateLabelPositions(e1Vector, e2Vector) {
   const offset = 0.25;
@@ -407,6 +854,36 @@ function applyMatrix(matrix, vector) {
 
     matrix[1][0] * vector.x + matrix[1][1] * vector.y,
   );
+}
+
+// ==================================================
+// Matrix multiplication
+// ==================================================
+
+function multiplyMatrices(a, b) {
+  return [
+    [
+      a[0][0] * b[0][0] + a[0][1] * b[1][0],
+      a[0][0] * b[0][1] + a[0][1] * b[1][1],
+    ],
+    [
+      a[1][0] * b[0][0] + a[1][1] * b[1][0],
+      a[1][0] * b[0][1] + a[1][1] * b[1][1],
+    ],
+  ];
+}
+
+function computeChainProduct() {
+  let product = [
+    [1, 0],
+    [0, 1],
+  ];
+
+  for (let i = 0; i < matrices.length; i++) {
+    product = multiplyMatrices(matrices[i], product);
+  }
+
+  return product;
 }
 
 // ==================================================
@@ -559,28 +1036,16 @@ function updateArrow(arrow, vector) {
 // Matrix label texture
 // ==================================================
 
-function setMatrixLabel(index) {
-  if (index === null || index === undefined || !matrices[index]) {
-    matrixDisplay.innerHTML = `
-      <span style="
-        font-size: 1rem;
-        font-weight: normal;
-        color: #666;
-      ">No transformations</span>
-    `;
-
-    return;
+function formatMatrixValue(value) {
+  if (!Number.isFinite(value)) {
+    return "0";
   }
 
-  const matrix = matrices[index];
+  return String(Number(value.toFixed(4)));
+}
 
-  function n(value) {
-    return Number(value.toFixed(2));
-  }
-
-  matrixDisplay.innerHTML = `
-    <span>A<sub>${index + 1}</sub> =</span>
-
+function matrixMarkup(matrix) {
+  return `
     <span style="
       display: inline-flex;
       align-items: center;
@@ -600,10 +1065,10 @@ function setMatrixLabel(index) {
         margin: 0 0.3rem;
         text-align: right;
       ">
-        <span>${n(matrix[0][0])}</span>
-        <span>${n(matrix[0][1])}</span>
-        <span>${n(matrix[1][0])}</span>
-        <span>${n(matrix[1][1])}</span>
+        <span>${formatMatrixValue(matrix[0][0])}</span>
+        <span>${formatMatrixValue(matrix[0][1])}</span>
+        <span>${formatMatrixValue(matrix[1][0])}</span>
+        <span>${formatMatrixValue(matrix[1][1])}</span>
       </span>
 
       <span style="
@@ -613,6 +1078,52 @@ function setMatrixLabel(index) {
       ">]</span>
 
     </span>
+  `;
+}
+
+function setMatrixLabel(index) {
+  if (index === null || index === undefined || !matrices[index]) {
+    matrixDisplay.innerHTML = `
+      <span style="
+        font-size: 1rem;
+        font-weight: normal;
+        color: #666;
+      ">No transformations</span>
+    `;
+
+    return;
+  }
+
+  matrixDisplay.innerHTML = `
+    <span>A<sub>${index + 1}</sub> =</span>
+
+    ${matrixMarkup(matrices[index])}
+  `;
+}
+
+function chainProductLabel() {
+  if (matrices.length === 0) {
+    return "I";
+  }
+
+  if (matrices.length <= 4) {
+    const factors = [];
+
+    for (let i = matrices.length; i >= 1; i--) {
+      factors.push(`A<sub>${i}</sub>`);
+    }
+
+    return factors.join("");
+  }
+
+  return `A<sub>${matrices.length}</sub>⋯A<sub>2</sub>A<sub>1</sub>`;
+}
+
+function refreshProductLabel() {
+  productDisplay.innerHTML = `
+    <span>${chainProductLabel()} =</span>
+
+    ${matrixMarkup(computeChainProduct())}
   `;
 }
 
@@ -840,6 +1351,12 @@ function handleChainChange({ rebuildEditor = true } = {}) {
     renderMatrixEditor();
   }
 
+  // Any change to the chain invalidates the vector overlays.
+
+  clearVectorOverlays();
+
+  refreshProductLabel();
+
   reset();
 }
 
@@ -1061,6 +1578,93 @@ controls.appendChild(unitCircleToggle);
 // Sync the initial visibility with the checkbox state.
 
 unitCircle.visible = unitCircleCheckbox.checked;
+
+// ==================================================
+// Eigenvector and singular vector toggles
+// ==================================================
+
+function makeVectorToggle(text, accentColor) {
+  const label = document.createElement("label");
+
+  label.style.display = "flex";
+  label.style.alignItems = "center";
+  label.style.gap = "0.4rem";
+  label.style.fontFamily = "Arial, sans-serif";
+  label.style.fontSize = "0.9rem";
+  label.style.color = "#333";
+  label.style.cursor = "pointer";
+  label.style.userSelect = "none";
+
+  const checkbox = document.createElement("input");
+
+  checkbox.type = "checkbox";
+  checkbox.checked = false;
+  checkbox.style.margin = "0";
+  checkbox.style.accentColor = accentColor;
+  checkbox.style.cursor = "pointer";
+
+  label.appendChild(checkbox);
+
+  label.appendChild(document.createTextNode(text));
+
+  return { label, checkbox };
+}
+
+const eigenvectorToggle = makeVectorToggle("Show eigenvectors", "#e65100");
+
+const singularVectorToggle = makeVectorToggle(
+  "Show singular vectors",
+  "#6a1b9a",
+);
+
+controls.appendChild(eigenvectorToggle.label);
+
+controls.appendChild(singularVectorToggle.label);
+
+eigenvectorToggle.checkbox.addEventListener("change", () => {
+  showEigenvectors = eigenvectorToggle.checkbox.checked;
+
+  if (
+    showEigenvectors &&
+    computeEigenvectors(computeChainProduct()) === null
+  ) {
+    showMessage(
+      "This transformation has complex eigenvalues, so it has no real eigenvectors.",
+    );
+  }
+
+  refreshOverlayVectors();
+});
+
+singularVectorToggle.checkbox.addEventListener("change", () => {
+  showSingularVectors = singularVectorToggle.checkbox.checked;
+
+  refreshOverlayVectors();
+});
+
+function clearVectorOverlays() {
+  eigenvectorToggle.checkbox.checked = false;
+
+  singularVectorToggle.checkbox.checked = false;
+
+  showEigenvectors = false;
+
+  showSingularVectors = false;
+
+  eigenvectorSteps = null;
+
+  rightSingularSteps = null;
+
+  leftSingularReferences = null;
+
+  overlayProgress = 1;
+
+  hideOverlayGroup(eigenvectorArrows, eigenvectorLabels);
+
+  hideOverlayGroup(rightSingularArrows, rightSingularLabels);
+
+  hideOverlayGroup(leftSingularArrows, leftSingularLabels);
+}
 
 // ==================================================
 // Message area
@@ -1478,6 +2082,8 @@ function animate(time) {
   if (!playing) {
     updateStepLabel();
 
+    updateOverlayVectors(1);
+
     renderer.render(scene, camera);
 
     return;
@@ -1542,6 +2148,8 @@ function animate(time) {
         startTransition(currentStep + 1);
 
         updateStepLabel();
+
+        updateOverlayVectors(0);
 
         renderer.render(scene, camera);
 
@@ -1628,6 +2236,8 @@ function animate(time) {
 
   updateStepLabel();
 
+  updateOverlayVectors(t);
+
   renderer.render(scene, camera);
 }
 
@@ -1658,6 +2268,8 @@ window.addEventListener("resize", () => {
 // ==================================================
 
 renderMatrixEditor();
+
+refreshProductLabel();
 
 updateArrow(e1, currentE1);
 
