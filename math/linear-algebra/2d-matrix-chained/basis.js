@@ -1929,7 +1929,7 @@ function renderMatrixEditor() {
 
     inputGrid.style.display = "grid";
 
-    inputGrid.style.gridTemplateColumns = "repeat(2, 4rem)";
+    inputGrid.style.gridTemplateColumns = "repeat(2, 5rem)";
 
     inputGrid.style.gap = "0.3rem";
 
@@ -1948,7 +1948,7 @@ function renderMatrixEditor() {
           `Matrix ${i + 1}, row ${row + 1}, column ${column + 1}`,
         );
 
-        input.style.width = "4rem";
+        input.style.width = "5rem";
 
         input.style.boxSizing = "border-box";
 
