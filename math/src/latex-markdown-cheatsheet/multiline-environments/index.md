@@ -73,6 +73,20 @@ $$
 
 ## Tags and numbering
 
+$$
+\begin{align}
+a &= b\\
+c &= d
+\end{align}
+$$
+
+$$
+\begin{align}
+a &= b \notag \\
+c &= d \tag{*}
+\end{align}
+$$
+
 `\notag` suppresses the equation number; `\tag{*}` replaces it with a custom
 tag. Both only work in display math.
 
