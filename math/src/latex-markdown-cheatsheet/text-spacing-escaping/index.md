@@ -6,7 +6,7 @@
 |-|-|-|
 | $\Large \text{if } x > 0$ |&emsp;&emsp;| $\Large \verb!\text{if } x > 0!$ |
 | $\Large a \text{ and } b$ || $\Large \verb!a \text{ and } b!$ |
-| $\Large \text{20\%}$ || $\Large \verb!\text{20\%}! $ |
+| $\Large \text{20\%}$ || $\Large \verb!\text{20\%}!$ |
 | $\Large \mathrm{d}x$ || $\Large \verb!\mathrm{d}x!$ |
 
 `\text{...}` preserves spaces; adjacent math needs its own `$...$` or a space
@@ -24,7 +24,16 @@ inside the braces (`\text{if }`). For font shapes see
 | $\Large a\quad b$ || $\Large \verb!a\quad b!$ |
 | $\Large a\qquad b$ || $\Large \verb!a\qquad b!$ |
 | $\Large a\hspace{2em}b$ || $\Large \verb!a\hspace{2em}b!$ |
-| $\Large a \\[1em] b$ || $\Large \verb!a \\[1em] b!$ (extra row space) |
+
+$$
+\Large
+\begin{gathered}
+a\\[1em]
+b
+\end{gathered}
+\qquad
+\Large \verb!a \\[1em] b! \quad\text{(extra row space)}
+$$
 
 `\\[1em]` is mainly used inside display math and arrays — see
 [multiline-environments](../multiline-environments/) and
