@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>index</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css"
+  >
+
+  <style>
+    body {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px;
+      font-family: system-ui, sans-serif;
+      line-height: 1.7;
+      color: #333;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.3;
+      margin-top: 2em;
+    }
+
+    pre {
+      padding: 16px;
+      overflow-x: auto;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    code {
+      font-family: monospace;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .katex-display {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>LaTeX logic and proofs</h1>
+<h2>Quantifiers and connectives</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi mathvariant="normal">∀</mi><mi>x</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large \forall x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;"></span><span class="mord katex-sizing reset-size6 size8">∀</span><span class="mord mathnormal katex-sizing reset-size6 size8">x</span></span></span></span></eq></td>
+<td>  </td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\forall x</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\forall x!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\forall x</span></span></span></span></span></eq> (for all)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi mathvariant="normal">∃</mi><mi>x</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large \exists x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;"></span><span class="mord katex-sizing reset-size6 size8">∃</span><span class="mord mathnormal katex-sizing reset-size6 size8">x</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\exists x</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\exists x!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\exists x</span></span></span></span></span></eq> (there exists)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi mathvariant="normal">∄</mi><mi>x</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large \nexists x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.992em;"></span><span class="mord amsrm katex-sizing reset-size6 size8">∄</span><span class="mord mathnormal katex-sizing reset-size6 size8">x</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\nexists x</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\nexists x!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\nexists x</span></span></span></span></span></eq> (does not exist)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi mathvariant="normal">¬</mi><mi>p</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large \neg p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9em;vertical-align:-0.28em;"></span><span class="mord katex-sizing reset-size6 size8">¬</span><span class="mord mathnormal katex-sizing reset-size6 size8">p</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\neg p</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\neg p!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\neg p</span></span></span></span></span></eq> (not; also <code>\lnot</code>)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi>p</mi><mo>∧</mo><mi>q</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large p \land q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.08em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin katex-sizing reset-size6 size8">∧</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8" style="margin-right:0.0359em;">q</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">p \land q</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!p \land q!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">p \land q</span></span></span></span></span></eq> (and)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi>p</mi><mo>∨</mo><mi>q</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large p \lor q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.08em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin katex-sizing reset-size6 size8">∨</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8" style="margin-right:0.0359em;">q</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">p \lor q</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!p \lor q!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">p \lor q</span></span></span></span></span></eq> (or)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi>p</mi><mtext>  </mtext><mo>⟹</mo><mtext>  </mtext><mi>q</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large p \implies q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.036em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8">p</span><span class="mspace katex-sizing reset-size6 size8" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel katex-sizing reset-size6 size8">⟹</span><span class="mspace katex-sizing reset-size6 size8" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8" style="margin-right:0.0359em;">q</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">p \implies q</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!p \implies q!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">p \implies q</span></span></span></span></span></eq> (implies)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi>p</mi><mtext>  </mtext><mo>⟺</mo><mtext>  </mtext><mi>q</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large p \iff q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.036em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8">p</span><span class="mspace katex-sizing reset-size6 size8" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel katex-sizing reset-size6 size8">⟺</span><span class="mspace katex-sizing reset-size6 size8" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9em;vertical-align:-0.28em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8" style="margin-right:0.0359em;">q</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">p \iff q</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!p \iff q!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">p \iff q</span></span></span></span></span></eq> (if and only if)</td>
+</tr>
+</tbody>
+</table>
+<p><code>\iff</code> is the logical biconditional (<code>⟺</code>); <code>\leftrightarrow</code> is only a
+bidirectional arrow and lives in <a href="../arrows/">arrows</a>. <code>\therefore</code>
+(“therefore”) is a distinct symbol from <code>\implies</code>.</p>
+<h2>Equivalence and similarity</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>≈</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \approx</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6957em;"></span><span class="mrel katex-sizing reset-size6 size8">≈</span></span></span></span></eq></td>
+<td>  </td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\approx</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\approx!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\approx</span></span></span></span></span></eq></td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>≡</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \equiv</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6678em;"></span><span class="mrel katex-sizing reset-size6 size8">≡</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\equiv</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\equiv!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\equiv</span></span></span></span></span></eq></td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>∼</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \sim</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5283em;"></span><span class="mrel katex-sizing reset-size6 size8">∼</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\sim</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\sim!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\sim</span></span></span></span></span></eq></td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>≃</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \simeq</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6678em;"></span><span class="mrel katex-sizing reset-size6 size8">≃</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\simeq</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\simeq!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\simeq</span></span></span></span></span></eq></td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>≅</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \cong</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8482em;"></span><span class="mrel katex-sizing reset-size6 size8">≅</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\cong</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\cong!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\cong</span></span></span></span></span></eq> (congruent to)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi>A</mi><mo>∖</mo><mi>B</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large A \setminus B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.44em;vertical-align:-0.36em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin katex-sizing reset-size6 size8">∖</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.984em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8" style="margin-right:0.0502em;">B</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">A \setminus B</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!A \setminus B!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">A \setminus B</span></span></span></span></span></eq> (exclude)</td>
+</tr>
+</tbody>
+</table>
+<h2>Proof notation</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>⊢</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \vdash</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;"></span><span class="mrel katex-sizing reset-size6 size8">⊢</span></span></span></span></eq></td>
+<td>  </td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\vdash</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\vdash!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\vdash</span></span></span></span></span></eq> (provable from)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>⊨</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \models</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.4386em;vertical-align:-0.3586em;"></span><span class="mrel katex-sizing reset-size6 size8">⊨</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\models</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\models!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\models</span></span></span></span></span></eq> (models / satisfies)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>∴</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \therefore</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9968em;"></span><span class="mrel amsrm katex-sizing reset-size6 size8">∴</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\therefore</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\therefore!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\therefore</span></span></span></span></span></eq></td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mo>∵</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large \because</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9968em;"></span><span class="mrel amsrm katex-sizing reset-size6 size8">∵</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\because</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\because!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\because</span></span></span></span></span></eq></td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi mathvariant="normal">⊤</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large \top</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;"></span><span class="mord katex-sizing reset-size6 size8">⊤</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\top</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\top!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\top</span></span></span></span></span></eq> (true)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi mathvariant="normal">⊥</mi></mstyle></mrow><annotation encoding="application/x-tex">\Large \bot</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;"></span><span class="mord katex-sizing reset-size6 size8">⊥</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">\bot</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!\bot!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.12em;vertical-align:-0.12em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">\bot</span></span></span></span></span></eq> (false; also <code>\perp</code>)</td>
+</tr>
+<tr>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mi>x</mi><mo>⟼</mo><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mstyle></mrow><annotation encoding="application/x-tex">\Large x \longmapsto f(x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7517em;vertical-align:-0.0158em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel katex-sizing reset-size6 size8">⟼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.44em;vertical-align:-0.36em;"></span><span class="mord mathnormal katex-sizing reset-size6 size8" style="margin-right:0.1076em;">f</span><span class="mopen katex-sizing reset-size6 size8">(</span><span class="mord mathnormal katex-sizing reset-size6 size8">x</span><span class="mclose katex-sizing reset-size6 size8">)</span></span></span></span></eq></td>
+<td></td>
+<td><eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathsize="1.44em"><mtext mathvariant="monospace">x \longmapsto f(x)</mtext></mstyle></mrow><annotation encoding="application/x-tex">\Large \verb!x \longmapsto f(x)!</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.32em;vertical-align:-0.32em;"></span><span class="mord text katex-sizing reset-size6 size8"><span class="mord texttt">x \longmapsto f(x)</span></span></span></span></span></eq> (maps to)</td>
+</tr>
+</tbody>
+</table>
+<p>Order and comparison relations are in <a href="../relations/">relations</a>; set
+operations are in <a href="../set-theory/">set-theory</a>.</p>
+
+  </main>
+</body>
+</html>

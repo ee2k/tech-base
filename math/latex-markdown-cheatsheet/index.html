@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>index</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css"
+  >
+
+  <style>
+    body {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px;
+      font-family: system-ui, sans-serif;
+      line-height: 1.7;
+      color: #333;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.3;
+      margin-top: 2em;
+    }
+
+    pre {
+      padding: 16px;
+      overflow-x: auto;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    code {
+      font-family: monospace;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .katex-display {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>LaTeX → Markdown cheatsheet</h1>
+<p>Quick reference for writing math in Markdown with the <strong>KaTeX</strong> renderer.</p>
+<h2>Conventions</h2>
+<ul>
+<li>Renderer: <strong>KaTeX</strong>. Commands are chosen for KaTeX support; LaTeX-only
+packages and commands (<code>\usepackage{...}</code>, <code>\mbox</code>, <code>dcases</code>) are avoided.</li>
+<li>Simple one-line commands use a two-column table: rendered result on the left,
+source on the right.</li>
+<li>Multi-line environments show a rendered block followed by a fenced <code>latex</code>
+block you can copy.</li>
+<li>In tables the source is shown verbatim with <code>\verb!...!</code>. The <code>!</code> is the
+<code>\verb</code> delimiter, chosen because it does not conflict with the <code>|</code>
+characters that separate Markdown table cells. Copy the text between the
+<code>!</code> marks.</li>
+<li><code>\Large</code>/<code>\large</code> and <code>\\[1em]</code> are for readability on this page, not part of
+the snippet.</li>
+</ul>
+<h2>Index</h2>
+<h3>Syntax / formatting</h3>
+<ul>
+<li><a href="greek-letters">greek-letters</a></li>
+<li><a href="text-spacing-escaping">text-spacing-escaping</a></li>
+<li><a href="fonts-and-styles">fonts-and-styles</a></li>
+<li><a href="superscripts-subscripts">superscripts-subscripts</a></li>
+<li><a href="fractions-and-radicals">fractions-and-radicals</a></li>
+<li><a href="big-operators">big-operators</a></li>
+<li><a href="arrows">arrows</a></li>
+<li><a href="delimiters">delimiters</a></li>
+<li><a href="accents">accents</a></li>
+<li><a href="annotations">annotations</a></li>
+<li><a href="sizing">sizing</a></li>
+<li><a href="dots">dots</a></li>
+</ul>
+<h3>Environments</h3>
+<ul>
+<li><a href="matrices-and-arrays">matrices-and-arrays</a></li>
+<li><a href="multiline-environments">multiline-environments</a></li>
+<li><a href="cases">cases</a></li>
+</ul>
+<h3>Math notation by subject</h3>
+<ul>
+<li><a href="functions-and-operators">functions-and-operators</a></li>
+<li><a href="relations">relations</a></li>
+<li><a href="logic-and-proofs">logic-and-proofs</a></li>
+<li><a href="set-theory">set-theory</a></li>
+<li><a href="probability">probability</a></li>
+<li><a href="combinatorics">combinatorics</a></li>
+<li><a href="geometry">geometry</a></li>
+</ul>
+<h2>Maintenance</h2>
+<ul>
+<li>One canonical home per command. If a symbol is useful in two categories, put
+the full example in one and add a <code>See also</code> link in the other instead of
+duplicating the row.</li>
+<li>Folder names describe the LaTeX construct first; subject areas are collected
+in their own section of the index above.</li>
+</ul>
+
+  </main>
+</body>
+</html>
