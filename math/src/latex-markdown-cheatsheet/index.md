@@ -2,21 +2,6 @@
 
 Quick reference for writing math in Markdown with the **KaTeX** renderer.
 
-## Conventions
-
-- Renderer: **KaTeX**. Commands are chosen for KaTeX support; LaTeX-only
-  packages and commands (`\usepackage{...}`, `\mbox`, `dcases`) are avoided.
-- Simple one-line commands use a two-column table: rendered result on the left,
-  source on the right.
-- Multi-line environments show a rendered block followed by a fenced `latex`
-  block you can copy.
-- In tables the source is shown verbatim with `\verb!...!`. The `!` is the
-  `\verb` delimiter, chosen because it does not conflict with the `|`
-  characters that separate Markdown table cells. Copy the text between the
-  `!` marks.
-- `\Large`/`\large` and `\\[1em]` are for readability on this page, not part of
-  the snippet.
-
 ## Index
 
 ### Syntax / formatting
@@ -49,6 +34,21 @@ Quick reference for writing math in Markdown with the **KaTeX** renderer.
 - [probability](probability)
 - [combinatorics](combinatorics)
 - [geometry](geometry)
+
+## Conventions
+
+- Renderer: **KaTeX**. Commands are chosen for KaTeX support; LaTeX-only
+  packages and commands (`\usepackage{...}`, `\mbox`, `dcases`) are avoided.
+- Simple one-line commands use a two-column table: rendered result on the left,
+  source on the right.
+- Multi-line environments show a rendered block followed by a fenced `latex`
+  block you can copy.
+- In tables the source is shown verbatim with `\verb!...!`. The `!` is the
+  `\verb` delimiter, chosen because it does not conflict with the `|`
+  characters that separate Markdown table cells. Copy the text between the
+  `!` marks.
+- `\Large`/`\large` and `\\[1em]` are for readability on this page, not part of
+  the snippet.
 
 ## Maintenance
 
