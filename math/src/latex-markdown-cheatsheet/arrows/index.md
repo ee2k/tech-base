@@ -19,8 +19,7 @@
 | $\Large \searrow$ || $\Large \verb!\searrow!$ |
 | $\Large \xrightarrow{d/dx}$ || $\Large \verb!\xrightarrow{d/dx}!$ |
 | $\Large \xleftarrow{f}$ || $\Large \verb!\xleftarrow{f}!$ |
-
-$\sin x \xrightarrow{d/dx} \cos x$
+| $\sin x \xrightarrow{d/dx} \cos x$ || $\Large \verb!\sin x \xrightarrow{d/dx} \cos x!$ |
 
 The logical arrows `\implies` and `\iff` are in
 [logic-and-proofs](../logic-and-proofs/).

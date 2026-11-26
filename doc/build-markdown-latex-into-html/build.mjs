@@ -4,8 +4,8 @@ import MarkdownIt from "markdown-it";
 import texmath from "markdown-it-texmath";
 import katex from "katex";
 
-const sourceDir = "../../math/src/latex-markdown-cheatsheet";
-const outputDir = "../../math/latex-markdown-cheatsheet";
+const sourceDir = "../../math/src/";
+const outputDir = "../../math/";
 
 const md = new MarkdownIt({
   html: true,
